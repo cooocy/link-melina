@@ -1,12 +1,12 @@
+import aes
 import base64
 import hashlib
+
+from fastapi import FastAPI, Request
+from starlette.responses import PlainTextResponse
 from typing import List
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-from starlette.responses import PlainTextResponse
-
-import aes
+import melina_client
 
 token = 'dK2cRNE322kDvTR9NA'
 encoding_aes_key = 'vZrUvHQ1sf2SGxpuT3KlDsXpBRk2e4f3AcWWTlXIPJI'
@@ -14,16 +14,18 @@ encoding_aes_key = 'vZrUvHQ1sf2SGxpuT3KlDsXpBRk2e4f3AcWWTlXIPJI'
 app = FastAPI()
 
 
-class Item(BaseModel):
-    name: str
-    description: str = None
-    price: float
-    tax: float = None
-
-
 @app.get("/")
 def read_root():
     return {"message": "Hello, World!"}
+
+
+@app.post("/fs")
+async def fs(request: Request) -> PlainTextResponse:
+    request_body_bytes = await request.body()
+    request_body = request_body_bytes.decode('utf-8')
+    print(request_body)
+    melina_client.handle(request_body)
+    return PlainTextResponse("hello world.")
 
 
 @app.get("/work-wx/check")
